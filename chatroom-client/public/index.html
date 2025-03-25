@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chatroom Client</title>
+</head>
+<body>
+  <h1>Chatroom WebSocket Client</h1>
+
+  <label>User ID: <input id="userId" value="user1" /></label><br />
+  <label>Room ID: <input id="chatRoomId" value="room1" /></label><br />
+  <button id="joinBtn">Join</button>
+  <button id="sendBtn">Send Message</button>
+
+  <div id="log" style="margin-top: 1em;"></div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const log = (msg) => {
+      const logEl = document.getElementById('log');
+      logEl.innerHTML += `<div>${msg}</div>`;
+    };
+
+    const socket = io('http://localhost:8080', {
+        transports: ['websocket'],
+        upgrade: false // prevents fallback to polling
+    }); // NGINX LB URL
+
+    socket.on('chat:message', (data) => {
+      log(`📨 Message from ${data.userId}: ${data.message}`);
+    });
+
+    socket.on('user:joined', (data) => {
+      log(`👋 ${data.userId} joined room ${data.chatRoomId}`);
+    });
+
+    socket.on('connect', () => {
+      const userId = document.getElementById('userId').value;
+      const chatRoomId = document.getElementById('chatRoomId').value;
+      
+      if (userId && chatRoomId) {
+        socket.emit('chat:event', {
+        eventType: 'join',
+        userId,
+        chatRoomId,
+        timestamp: new Date().toISOString()
+      });
+      }
+  });
+
+
+    document.getElementById('joinBtn').onclick = () => {
+      const userId = document.getElementById('userId').value;
+      const chatRoomId = document.getElementById('chatRoomId').value;
+      const timestamp = new Date().toISOString();
+
+      socket.emit('chat:event', {
+        eventType: 'join',
+        userId,
+        chatRoomId,
+        timestamp
+      });
+
+      log(`🟢 Sent join for ${userId} to room ${chatRoomId}`);
+    };
+
+    document.getElementById('sendBtn').onclick = () => {
+      const userId = document.getElementById('userId').value;
+      const chatRoomId = document.getElementById('chatRoomId').value;
+      const timestamp = new Date().toISOString();
+
+      socket.emit('chat:event', {
+        eventType: 'message',
+        userId,
+        chatRoomId,
+        message: 'Hello from client!',
+        timestamp
+      });
+
+      log(`✉️ Sent message to ${chatRoomId}`);
+    };
+  </script>
+</body>
+</html>
