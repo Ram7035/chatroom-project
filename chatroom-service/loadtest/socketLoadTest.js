@@ -1,11 +1,12 @@
 import { io } from 'socket.io-client';
+import { logger } from '../src/utils/logger';
 
 const USERS = 10000; // total connections
 const ROOMS = 1000;  // distinct chatrooms
 const MESSAGE_INTERVAL_MS = 10000; // 1 message per 10 seconds per user
 const SERVER_URL = 'http://localhost:8080';
 
-console.log(`🚀 Starting load test: ${USERS} users, ${ROOMS} rooms`);
+logger.info(`🚀 Starting load test: ${USERS} users, ${ROOMS} rooms`);
 
 let sockets = [];
 
@@ -41,7 +42,7 @@ for (let i = 0; i < USERS; i++) {
   });
 
   socket.on('connect_error', (err) => {
-    console.error(`❌ Failed to connect user ${userId}:`, err.message);
+    logger.error(err, '❌ Failed to connect user ${userId}');
   });
 
   sockets.push(socket);
@@ -50,4 +51,4 @@ for (let i = 0; i < USERS; i++) {
   await new Promise((res) => setTimeout(res, 5)); // slower ramp-up
 }
 
-console.log(`✅ All ${USERS} users connected`);
+logger.info(`✅ All ${USERS} users connected`);

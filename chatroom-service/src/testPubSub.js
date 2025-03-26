@@ -1,5 +1,6 @@
 // src/testPubSub.js
 import Redis from 'ioredis';
+import { logger } from './utils/logger';
 
 const CHANNEL = 'chatroom:test';
 
@@ -7,14 +8,14 @@ const testPubSub = async () => {
   const pubClient = new Redis(); // Publisher
   const subClient = new Redis(); // Subscriber
 
-  subClient.on('error', console.error);
-  pubClient.on('error', console.error);
+  subClient.on('error', logger.error);
+  pubClient.on('error', logger.error);
 
   // Subscribe to the channel
   await subClient.subscribe(CHANNEL);
 
   subClient.on('message', (channel, message) => {
-    console.log(`📩 Received on ${channel}:`, JSON.parse(message));
+    logger.info(`📩 Received on ${channel}:`, JSON.parse(message));
     process.exit(0); // Exit after receiving message
   });
 
@@ -27,7 +28,7 @@ const testPubSub = async () => {
       message: 'Hello from pub!',
       timestamp: new Date().toISOString(),
     };
-    console.log('📤 Publishing:', event);
+    logger.info('📤 Publishing:', event);
     pubClient.publish(CHANNEL, JSON.stringify(event));
   }, 500);
 };

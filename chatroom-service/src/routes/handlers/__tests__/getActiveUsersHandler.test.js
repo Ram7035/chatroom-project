@@ -28,7 +28,7 @@ describe('getActiveUsersHandler', () => {
     await getActiveUsersHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'chatRoomId is required' });
+    expect(res.json).toHaveBeenCalledWith({ error: 'Missing chatRoomId' });
   });
 
   it('should return 500 on internal error', async () => {
@@ -37,6 +37,6 @@ describe('getActiveUsersHandler', () => {
     await getActiveUsersHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Internal Server Error' });
+    expect(res.json).toHaveBeenCalledWith({ error: 'Failed to get active users' });
   });
 });

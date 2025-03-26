@@ -17,7 +17,7 @@ export async function connectKafka() {
       try {
         await kafkaProducer.connect();
         await kafkaConsumer.connect();
-        console.log('✅ Connected to Kafka');
+        logger.info('✅ Connected to Kafka');
         return;
       } catch (err) {
         attempts++;
@@ -35,7 +35,7 @@ export async function startKafkaConsumer(io) {
   await kafkaConsumer.run({
     eachMessage: async ({ _, message }) => {
       const data = JSON.parse(message.value.toString());
-      console.log('📥 Kafka -> Broadcasting:', data);
+      logger.info('📥 Kafka -> Broadcasting:', data);
 
       if (data.chatRoomId) {
         io.to(data.chatRoomId).emit('chat:message', data);

@@ -28,7 +28,7 @@ describe('getChatHistoryHandler', () => {
 
     expect(messageStore.getLastMessages).toHaveBeenCalledWith('room1', 50); // default limit
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ messages: mockMessages });
+    expect(res.json).toHaveBeenCalledWith({ "chatRoomId": "room1", messages: mockMessages });
   });
 
   it('should return messages with custom limit', async () => {
@@ -40,7 +40,7 @@ describe('getChatHistoryHandler', () => {
 
     expect(messageStore.getLastMessages).toHaveBeenCalledWith('room1', 5);
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ messages: [] });
+    expect(res.json).toHaveBeenCalledWith({ "chatRoomId": "room1", messages: [] });
   });
 
   it('should return 400 if chatRoomId is missing', async () => {
@@ -49,7 +49,7 @@ describe('getChatHistoryHandler', () => {
     await getChatHistoryHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ error: 'chatRoomId is required' });
+    expect(res.json).toHaveBeenCalledWith({ error: 'Missing chatRoomId' });
   });
 
   it('should return 500 on internal error', async () => {
@@ -58,6 +58,6 @@ describe('getChatHistoryHandler', () => {
     await getChatHistoryHandler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: 'Internal Server Error' });
+    expect(res.json).toHaveBeenCalledWith({ error: 'Failed to get chat history' });
   });
 });

@@ -1,28 +1,41 @@
 import { addUserToRoom, getActiveUsersInRoom } from '../../data/stores/userStore.js';
+import { EVENTS } from '../../constants/events.js';
+import { logger } from '../../utils/logger.js';
 
-export const handleJoin = async (event, socket, _) => {
-  const { userId, chatRoomId } = event;
+/**
+ * Handles user joining a chatroom.
+ * @param {Object} event - Event payload
+ * @param {Object} socket - Socket.IO socket instance
+ */
+export const handleJoin = async (event, socket) => {
+  const { userId, chatRoomId, timestamp } = event;
 
   if (!userId || !chatRoomId) {
-    throw new Error('Missing userId or chatRoomId');
+    socket.emit('error', { message: 'Missing userId or chatRoomId' });
+    return;
   }
 
-  socket.userId = userId;
-  socket.chatRoomId = chatRoomId;
+  try {
+    socket.userId = userId;
+    socket.chatRoomId = chatRoomId;
 
-  await addUserToRoom(chatRoomId, userId);
-  socket.join(chatRoomId);
+    await addUserToRoom(chatRoomId, userId);
+    socket.join(chatRoomId);
 
-  console.log(`👤 User ${userId} joined room ${chatRoomId}`);
+    logger.info(`👤 User ${userId} joined room ${chatRoomId}`);
 
-  // Broadcast join to others in room
-  socket.to(chatRoomId).emit('user:joined', {
-    userId,
-    chatRoomId,
-    timestamp: event.timestamp,
-  });
+    // Broadcast to others
+    socket.to(chatRoomId).emit(EVENTS.JOINED, {
+      userId,
+      chatRoomId,
+      timestamp,
+    });
 
-  // Optional: Send back current user list to the new user
-  const users = await getActiveUsersInRoom(chatRoomId);
-  socket.emit('room:active-users', { chatRoomId, users });
+    // Send active users to the new user
+    const users = await getActiveUsersInRoom(chatRoomId);
+    socket.emit(EVENTS.ACTIVE_USERS, { chatRoomId, users });
+  } catch (err) {
+    logger.error(err, '❌ Error in handleJoin');
+    socket.emit('error', { message: 'Internal server error' });
+  }
 };

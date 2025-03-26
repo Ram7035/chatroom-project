@@ -9,7 +9,8 @@ describe('handleLeave', () => {
 
   const mockSocket = {
     leave: jest.fn(),
-    to: toMock, // local .to() for socket.to().emit
+    to: toMock, // local .to() for socket.to().emit,
+    emit: jest.fn(),
   };
 
   const mockIo = {
@@ -47,7 +48,7 @@ describe('handleLeave', () => {
 
     // Broadcast updated user list to entire room (io.to().emit)
     expect(toMock).toHaveBeenCalledWith('room1');
-    expect(emitMock).toHaveBeenCalledWith(
+    expect(mockSocket.emit).toHaveBeenCalledWith(
       'room:active-users',
       expect.objectContaining({
         chatRoomId: 'room1',
