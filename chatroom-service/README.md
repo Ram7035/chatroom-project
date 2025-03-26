@@ -130,7 +130,37 @@ Emitted to others in the room when someone joins/leaves.
 
 ## ⚙️ Architecture Overview
 
-![Architecture Diagram](./architecture-diagram.png)
+Client (Socket.IO + REST)
+        │
+        ▼
+┌───────────────────┐
+│     NGINX LB      │
+│ (round-robin load)│
+└───────────────────┘
+        │
+        ▼
+ ┌──────────────┐        ┌──────────────┐
+ │  Server #1   │        │  Server #2   │
+ │ (Express +   │        │ (Express +   │
+ │  Socket.IO)  │        │  Socket.IO)  │
+ └──────┬───────┘        └──────┬───────┘
+        │                       │
+        ├────────────┬──────────┤
+        ▼            ▼          ▼
+  Redis Adapter   Kafka Producer  (Send message)
+  (Sync sockets)   (Publish to topic)
+        │                       │
+        ▼                       ▼
+┌──────────────────┐    ┌──────────────────┐
+│     Redis DB     │    │      Kafka       │
+│(Users + Messages)│    │  (pub/sub topic) │
+└──────────────────┘    └──────────────────┘
+                             ▲
+                             │
+         ┌───────────────────┘
+         │ Kafka Consumer (All Servers)
+         ▼
+   io.to(chatRoomId).emit('chat:message')
 
 ---
 
