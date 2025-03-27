@@ -1,4 +1,3 @@
-// src/data/stores/userStore.js
 import { db } from '../dbClient.js';
 
 const getUserKey = (chatRoomId) => `chatroom:${chatRoomId}:users`;

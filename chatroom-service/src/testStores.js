@@ -1,4 +1,3 @@
-// src/testStores.js
 import { addUserToRoom, removeUserFromRoom, getActiveUsersInRoom } from './data/stores/userStore.js';
 import { storeMessage, getLastMessages } from './data/stores/messageStore.js';
 import { db } from './data/dbClient.js';
@@ -31,8 +30,9 @@ testRedisStores()
   .then(() => {
     logger.info('✅ Redis test completed');
     process.exit(0);
-  })
+})
   .catch((err) => {
     logger.error(err, '❌ Redis test failed');
     process.exit(1);
-  });
+});
+  

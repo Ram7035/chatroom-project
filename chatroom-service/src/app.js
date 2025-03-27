@@ -1,11 +1,12 @@
-// Final app entry point with graceful shutdown + logger
+// app entry point with graceful shutdown
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import express from 'express';
 import cors from 'cors';
 import { setupSocketRedisAdapter } from './socket/redisAdapter.js';
-import { kafkaConsumer } from './data/kafkaClient.js';
-import { redisClient } from './data/dbClient.js';
+import { kafkaProducer, kafkaConsumer } from './data/kafkaClient.js';
+import { db } from './data/dbClient.js';
+import { removeUserFromRoom } from './data/stores/userStore.js';
 import { registerSocketEvents } from './socket/index.js';
 import router from './routes/index.js';
 import { logger } from './utils/logger.js';
@@ -31,17 +32,23 @@ io.on('connection', (socket) => {
   logger.info(`🔌 Socket connected: ${socket.id}`);
   registerSocketEvents(socket, io);
 
-  socket.on('disconnect', (reason) => {
-    logger.info(`❌ Socket ${socket.id} disconnected. Reason: ${reason}`);
+  socket.on('disconnect', async () => {
+    const { userId, chatRoomId } = socket;
+    if (userId && chatRoomId) {
+      await removeUserFromRoom(chatRoomId, userId);
+      socket.to(chatRoomId).emit('user:left', { userId, chatRoomId });
+      console.log(`❌ ${userId} disconnected from ${chatRoomId}`);
+    }
   });
 });
 
 export async function start() {
   try {
-    await redisClient.connect();
+    await db.connect();
     logger.info('✅ Connected to Redis');
 
     await setupSocketRedisAdapter(io);
+    await kafkaProducer.connect();
     await kafkaConsumer.connect();
     logger.info('✅ Kafka consumer connected');
 
@@ -67,7 +74,7 @@ function shutdown() {
   logger.info('🛑 Graceful shutdown...');
   server.close(() => {
     logger.info('🧼 HTTP server closed');
-    Promise.all([redisClient.quit(), kafkaConsumer.disconnect()]).then(() => {
+    Promise.all([db.quit(), kafkaProducer.disconnect(), kafkaConsumer.disconnect()]).then(() => {
       logger.info('✅ Cleanup complete. Exiting.');
       process.exit(0);
     });

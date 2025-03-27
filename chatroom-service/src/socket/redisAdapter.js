@@ -1,9 +1,10 @@
 import { createAdapter } from '@socket.io/redis-adapter';
 import Redis from 'ioredis';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 let pubClient, subClient;
 
+// adapter to sync sockets between multiple server instances
 export async function setupSocketRedisAdapter(io) {
   pubClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
   subClient = pubClient.duplicate();

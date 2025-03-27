@@ -1,4 +1,3 @@
-// src/data/stores/messageStore.js
 import { db } from '../dbClient.js';
 
 const getMessageKey = (chatRoomId) => `chatroom:${chatRoomId}:messages`;

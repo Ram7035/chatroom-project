@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { logger } from '../src/utils/logger';
+import { logger } from '../src/utils/logger.js';
 
 const USERS = 32000;
 const ROOMS = 10000;

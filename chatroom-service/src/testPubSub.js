@@ -1,6 +1,5 @@
-// src/testPubSub.js
 import Redis from 'ioredis';
-import { logger } from './utils/logger';
+import { logger } from './utils/logger.js';
 
 const CHANNEL = 'chatroom:test';
 

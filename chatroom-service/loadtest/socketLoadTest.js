@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { logger } from '../src/utils/logger';
+import { logger } from '../src/utils/logger.js';
 
 const USERS = 10000; // total connections
 const ROOMS = 1000;  // distinct chatrooms

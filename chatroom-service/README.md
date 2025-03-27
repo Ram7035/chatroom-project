@@ -12,7 +12,7 @@ A scalable real-time chatroom microservice built with **Node.js**, **WebSockets*
 - **Redis Adapter** for socket sync across instances
 - **Kafka** for cross-instance message broadcasting
 - Horizontally scalable with **NGINX load balancer**
-- Fully Dockerized (optional `docker-compose`)
+- Fully Dockerized
 - Load-tested for concurrency and performance
 
 ---
@@ -51,7 +51,7 @@ npm install
 ### 3. Start Redis, Kafka, and services
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 ### 4. Run in dev mode
@@ -176,11 +176,3 @@ Emitted to others in the room when someone joins/leaves.
 - Auth/session management is not included (can be layered later)
 
 ---
-
-## 📹 Demo
-
-> A sample demo video can be recorded showing:
-> - Two browser tabs joining different servers
-> - Real-time message sync
-> - Load test logs with 32K users
-> - Redis + Kafka logs confirming scale
