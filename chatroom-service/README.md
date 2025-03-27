@@ -142,7 +142,7 @@ Emitted to others in the room when someone joins/leaves.
 - Kafka handled ~1,000 messages/sec
 - Redis Adapter ensured cross-instance broadcast
 
-Please increase OS File Descriptor Limit (ulimit) before running the load tests,
+Please increase OS File Descriptor Limit (ulimit) before running the load tests. We cannot test 50,000+ users in local.
 
 ```bash
 ulimit -n 65535
